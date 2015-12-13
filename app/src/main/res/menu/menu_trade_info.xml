@@ -5,10 +5,12 @@
 
     <item android:id="@+id/action_refresh"
         android:title="@string/action_refresh"
+        android:icon="@drawable/ic_popup_sync_1"
         android:orderInCategory="100"
         app:showAsAction="ifRoom" />
     <item android:id="@+id/action_add_stock"
         android:title="@string/action_add_stock"
+        android:icon="@drawable/ic_input_add"
         android:orderInCategory="100"
         app:showAsAction="ifRoom" />
 
