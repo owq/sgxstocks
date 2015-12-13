@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">SGXStocks</string>
+    <string name="action_add_stock">Add Stock Code</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="action_add">Add</string>
+    <string name="action_cancel">Cancel</string>
+</resources>
