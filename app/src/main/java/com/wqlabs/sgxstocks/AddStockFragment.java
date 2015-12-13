@@ -56,7 +56,7 @@ public class AddStockFragment extends DialogFragment {
                         // need to pass back the stock code...
                         AutoCompleteTextView tv = (AutoCompleteTextView)view.findViewById(R.id.stockCodeField);
                         String code = tv.getText().toString();
-                        mListener.addCode(code);
+                        mListener.addCode(code.toUpperCase());
                         AddStockFragment.this.getDialog().dismiss();
                     }
                 })
