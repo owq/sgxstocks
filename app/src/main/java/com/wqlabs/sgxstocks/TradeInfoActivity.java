@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ExpandableListView;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.TreeSet;
@@ -35,6 +36,8 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
         final ExpandableListView v = getTradeListView();
         v.setGroupIndicator(null);
 
+        getTopView().setText("Loading...");
+
         AsyncTask<Object,Object,TradeData> task = new AsyncTask<Object, Object, TradeData>() {
 
             @Override
@@ -61,8 +64,13 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
         task.execute();
     }
 
+    private TextView getTopView() {
+        return (TextView)findViewById(R.id.topView);
+    }
+
     private void loadTradeData(TradeData tradeData) {
-        Snackbar.make(getTradeListView(), tradeData.getTimeStamp(), Snackbar.LENGTH_INDEFINITE).show();
+//        Snackbar.make(getTradeListView(), tradeData.getTimeStamp(), Snackbar.LENGTH_INDEFINITE).show();
+        getTopView().setText(tradeData.getTimeStamp());
         this.tradeModel = new FilteredTradeViewModel(tradeData);
     }
 
