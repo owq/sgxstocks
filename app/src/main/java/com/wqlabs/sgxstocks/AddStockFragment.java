@@ -37,6 +37,7 @@ public class AddStockFragment extends DialogFragment {
 
     public interface AddStockDialogListener {
         void addCode(String code);
+        void removeCode(String code);
     }
 
     @Override
@@ -57,7 +58,16 @@ public class AddStockFragment extends DialogFragment {
                         AutoCompleteTextView tv = (AutoCompleteTextView)view.findViewById(R.id.stockCodeField);
                         String code = tv.getText().toString();
                         mListener.addCode(code.toUpperCase());
-                        AddStockFragment.this.getDialog().dismiss();
+                        tv.setText(null);
+                    }
+                })
+                .setNeutralButton(R.string.action_remove, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        AutoCompleteTextView tv = (AutoCompleteTextView)view.findViewById(R.id.stockCodeField);
+                        String code = tv.getText().toString();
+                        mListener.removeCode(code.toUpperCase());
+                        tv.setText(null);
                     }
                 })
                 .setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {

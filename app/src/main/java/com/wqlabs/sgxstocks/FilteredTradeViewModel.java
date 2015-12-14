@@ -41,10 +41,17 @@ public class FilteredTradeViewModel {
 
     public void setFilter(Collection<String> stockCodes) {
         List<SGXStockInfo> s = new ArrayList<>();
-        for(String code : stockCodes) {
+        for(final String code : stockCodes) {
             SGXStockInfo info = codeMap.get(code);
             if(info != null) {
                 s.add(info);
+            } else {
+                s.add(new SGXStockInfo(null) {
+                    @Override
+                    public String getStockCode() {
+                        return code;
+                    }
+                });
             }
         }
         stocksList = s;

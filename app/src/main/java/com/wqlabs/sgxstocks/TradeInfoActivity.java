@@ -5,8 +5,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
@@ -23,9 +28,35 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trade_info_classic);
 
+        ExpandableListView v = getTradeListView();
+        registerForContextMenu(v);
+
         settings = new AppSettings(this);
         settings.load();
         refresh();
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_stock_item, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        ExpandableListView.ExpandableListContextMenuInfo info = (ExpandableListView.ExpandableListContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.action_remove:
+                TradeInfoListAdapter adap = (TradeInfoListAdapter)getTradeListView().getExpandableListAdapter();
+                int groupPos = ExpandableListView.getPackedPositionGroup(info.packedPosition);
+                SGXStockInfo stock = adap.getGroup(groupPos);
+                removeCode(stock.getStockCode());
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+
     }
 
     private ExpandableListView getTradeListView() {
@@ -114,6 +145,14 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
     public void addCode(String code) {
         if(tradeModel.hasCode(code)) {
             settings.addStockCode(code);
+            updateTradeListView();
+        }
+    }
+
+    @Override
+    public void removeCode(String code) {
+        if(tradeModel.hasCode(code)) {
+            settings.removeStockCode(code);
             updateTradeListView();
         }
     }
