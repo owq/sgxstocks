@@ -98,33 +98,40 @@ public class AddStockFragment extends DialogFragment {
 
         builder.setView(view)
                 // Add action buttons
-                .setPositiveButton(R.string.action_add, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        // need to pass back the stock code...
-                        AutoCompleteTextView tv = (AutoCompleteTextView) view.findViewById(R.id.stockCodeField);
-                        String code = tv.getText().toString();
-                        if(mListener.addCode(processCode(code))) {
-                            tv.setText(null);
-                        }
-                    }
-                })
-                .setNeutralButton(R.string.action_remove, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        AutoCompleteTextView tv = (AutoCompleteTextView) view.findViewById(R.id.stockCodeField);
-                        String code = tv.getText().toString();
-                        if(mListener.removeCode(processCode(code))) {
-                            tv.setText(null);
-                        }
-                    }
-                })
+                .setPositiveButton(R.string.action_add, null)
+                .setNeutralButton(R.string.action_remove, null)
                 .setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        AddStockFragment.this.getDialog().cancel();
+                        dialog.cancel();
                     }
                 });
-        return builder.create();
+        AlertDialog d =  builder.create();
+        d.show();
+        d.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // need to pass back the stock code...
+                AutoCompleteTextView tv = (AutoCompleteTextView) view.findViewById(R.id.stockCodeField);
+                String code = tv.getText().toString();
+                if (mListener.addCode(processCode(code))) {
+                    tv.setText(null);
+                }
+
+            }
+        });
+        d.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AutoCompleteTextView tv = (AutoCompleteTextView) view.findViewById(R.id.stockCodeField);
+                String code = tv.getText().toString();
+                if(mListener.removeCode(processCode(code))) {
+                    tv.setText(null);
+                }
+
+            }
+        });
+
+        return d;
 
     }
 }
