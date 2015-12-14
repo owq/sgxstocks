@@ -56,4 +56,9 @@ public class SGXStockInfo {
         }
         return 0;
     }
+
+    @Override
+    public String toString() {
+        return getStockCode() + " " + getStockName();
+    }
 }

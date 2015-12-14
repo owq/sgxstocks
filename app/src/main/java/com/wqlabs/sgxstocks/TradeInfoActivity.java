@@ -12,10 +12,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AutoCompleteTextView;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.TreeSet;
 
 public class TradeInfoActivity extends AppCompatActivity implements AddStockFragment.AddStockDialogListener {
@@ -134,7 +136,19 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
                 refresh();
                 return true;
             case R.id.action_add_stock:
-                DialogFragment frag = new AddStockFragment();
+                AddStockFragment frag = new AddStockFragment();
+                frag.setModel(new AddStockAutoCompleteAdapter(this, new ArrayList<>(tradeModel.getAllStocks())));
+                frag.setValidator(new AutoCompleteTextView.Validator() {
+                    @Override
+                    public boolean isValid(CharSequence text) {
+                        return tradeModel.hasCode(text.toString());
+                    }
+
+                    @Override
+                    public CharSequence fixText(CharSequence invalidText) {
+                        return invalidText;
+                    }
+                });
                 frag.show(getFragmentManager(), "AddStockFragment");
                 return true;
         }
@@ -142,18 +156,24 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
     }
 
     @Override
-    public void addCode(String code) {
+    public boolean addCode(String code) {
         if(tradeModel.hasCode(code)) {
             settings.addStockCode(code);
             updateTradeListView();
+            return true;
+        } else {
+            return false;
         }
     }
 
     @Override
-    public void removeCode(String code) {
+    public boolean removeCode(String code) {
         if(tradeModel.hasCode(code)) {
             settings.removeStockCode(code);
             updateTradeListView();
+            return true;
+        } else {
+            return false;
         }
     }
 }

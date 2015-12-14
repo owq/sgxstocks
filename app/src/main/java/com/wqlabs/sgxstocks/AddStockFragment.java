@@ -9,7 +9,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+
+import java.util.ArrayList;
 
 /**
  * Created by RadianceOng on 13-Dec-15.
@@ -18,6 +21,16 @@ public class AddStockFragment extends DialogFragment {
 
     // Use this instance of the interface to deliver action events
     AddStockDialogListener mListener;
+    AddStockAutoCompleteAdapter model;
+    AutoCompleteTextView.Validator val;
+
+    public void setModel(AddStockAutoCompleteAdapter model) {
+        this.model = model;
+    }
+
+    public void setValidator(AutoCompleteTextView.Validator val) {
+        this.val = val;
+    }
 
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
     @Override
@@ -36,8 +49,17 @@ public class AddStockFragment extends DialogFragment {
 
 
     public interface AddStockDialogListener {
-        void addCode(String code);
-        void removeCode(String code);
+        boolean addCode(String code);
+        boolean removeCode(String code);
+    }
+
+    private String processCode(String data) {
+        int i = data.indexOf(' ');
+        if(i >= 0) {
+            return data.substring(0, i).toUpperCase();
+        } else {
+            return data.toUpperCase();
+        }
     }
 
     @Override
@@ -49,25 +71,52 @@ public class AddStockFragment extends DialogFragment {
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
         final View view = inflater.inflate(R.layout.dialog_add_stock, null);
+        final AutoCompleteTextView tv = (AutoCompleteTextView) view.findViewById(R.id.stockCodeField);
+        tv.setThreshold(2);
+        if(model != null) {
+            tv.setAdapter(model);
+        }
+        if(val != null) {
+            tv.setValidator(new AutoCompleteTextView.Validator() {
+                @Override
+                public boolean isValid(CharSequence text) {
+                    return val.isValid(text);
+                }
+
+                @Override
+                public CharSequence fixText(CharSequence invalidText) {
+                    return processCode(invalidText.toString());
+                }
+            });
+        }
+        tv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                tv.performValidation();
+            }
+        });
+
         builder.setView(view)
                 // Add action buttons
                 .setPositiveButton(R.string.action_add, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         // need to pass back the stock code...
-                        AutoCompleteTextView tv = (AutoCompleteTextView)view.findViewById(R.id.stockCodeField);
+                        AutoCompleteTextView tv = (AutoCompleteTextView) view.findViewById(R.id.stockCodeField);
                         String code = tv.getText().toString();
-                        mListener.addCode(code.toUpperCase());
-                        tv.setText(null);
+                        if(mListener.addCode(processCode(code))) {
+                            tv.setText(null);
+                        }
                     }
                 })
                 .setNeutralButton(R.string.action_remove, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        AutoCompleteTextView tv = (AutoCompleteTextView)view.findViewById(R.id.stockCodeField);
+                        AutoCompleteTextView tv = (AutoCompleteTextView) view.findViewById(R.id.stockCodeField);
                         String code = tv.getText().toString();
-                        mListener.removeCode(code.toUpperCase());
-                        tv.setText(null);
+                        if(mListener.removeCode(processCode(code))) {
+                            tv.setText(null);
+                        }
                     }
                 })
                 .setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {

@@ -31,6 +31,10 @@ public class FilteredTradeViewModel {
         return codeMap.containsKey(code);
     }
 
+    public Collection<SGXStockInfo> getAllStocks() {
+        return codeMap.values();
+    }
+
     public SGXStockInfo getInfo(int i) {
         return stocksList.get(i);
     }
