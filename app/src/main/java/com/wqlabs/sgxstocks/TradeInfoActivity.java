@@ -3,6 +3,7 @@ package com.wqlabs.sgxstocks;
 import android.app.DialogFragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
@@ -18,12 +19,16 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.TreeSet;
 
 public class TradeInfoActivity extends AppCompatActivity implements AddStockFragment.AddStockDialogListener {
 
     AppSettings settings;
     FilteredTradeViewModel tradeModel;
+
+    Date lastUpdatedDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +40,18 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
 
         settings = new AppSettings(this);
         settings.load();
-        refresh();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        lastUpdatedDate = (Date)savedInstanceState.getSerializable("lastUpdatedDate");
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        outState.putSerializable("lastUpdatedDate", lastUpdatedDate);
+        super.onSaveInstanceState(outState, outPersistentState);
     }
 
     @Override
@@ -63,6 +79,12 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
 
     private ExpandableListView getTradeListView() {
         return (ExpandableListView)findViewById(R.id.expandableListView);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        autoRefreshIfNeeded();
     }
 
     private void refresh() {
@@ -101,14 +123,27 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
         return (TextView)findViewById(R.id.topView);
     }
 
+    private void autoRefreshIfNeeded() {
+        if(lastUpdatedDate != null) {
+            Date current = new Date();
+            if(current.getTime() - lastUpdatedDate.getTime() > 1000 * 60) {
+                refresh();
+            }
+        }
+        else {
+            refresh();
+        }
+    }
+
     private void loadTradeData(TradeData tradeData) {
 //        Snackbar.make(getTradeListView(), tradeData.getTimeStamp(), Snackbar.LENGTH_INDEFINITE).show();
+        lastUpdatedDate = new Date();
         getTopView().setText(tradeData.getTimeStamp());
         this.tradeModel = new FilteredTradeViewModel(tradeData);
     }
 
     private void setFilter() {
-        this.tradeModel.setFilter(new TreeSet<>(settings.getStockCodes())); //TODO optimize.
+        this.tradeModel.setFilter(settings.getStockCodes()); //TODO optimize.
     }
 
     private void updateTradeListView() {

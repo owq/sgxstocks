@@ -74,9 +74,12 @@ public class TradeInfoListAdapter extends BaseExpandableListAdapter {
         SGXStockInfo info = getGroup(groupPosition);
         if (info != null) {
             TextView tv = (TextView) convertView.findViewById(R.id.tradeInfoGroupTextView);
-            String s = String.format("<b>%s %s</b>: (%.3f) %s / %s (%.3f)",
-                    info.getStockCode(), info.getStockName(), info.getBuyVol(), info.getBuyPrice(),
-                    info.getSellPrice(), info.getSellVol());
+            String s = String.format(
+                    "<b>%s %s</b> %s, %s-%s (%s)" + "<br>" +
+                            "(%.0f) %s / %s (%.0f)",
+                    info.getStockCode(), info.getStockName(), info.getLastPrice(), info.getLowPrice(), info.getHighPrice(), info.getOpenPrice(),
+                    info.getBuyVol(), info.getBuyPrice(), info.getSellPrice(), info.getSellVol());
+
             tv.setText(Html.fromHtml(s));
         }
 
