@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,5 +60,11 @@ public class FilteredTradeViewModel {
             }
         }
         stocksList = s;
+        Collections.sort(stocksList, new Comparator<SGXStockInfo>() {
+            @Override
+            public int compare(SGXStockInfo lhs, SGXStockInfo rhs) {
+                return lhs.getStockName().compareTo(rhs.getStockName());
+            }
+        });
     }
 }
