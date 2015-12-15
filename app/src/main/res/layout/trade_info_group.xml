@@ -10,5 +10,5 @@
         android:textSize="@dimen/abc_text_size_medium_material"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:paddingTop="5dp" />
+        android:paddingBottom="5dp" />
 </LinearLayout>

@@ -8,5 +8,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/expandableListView"
         android:drawSelectorOnTop="false"
-        android:divider="#5c5c5c" />
+        android:divider="#5c5c5c"
+        android:paddingTop="5dp" />
 </LinearLayout>
