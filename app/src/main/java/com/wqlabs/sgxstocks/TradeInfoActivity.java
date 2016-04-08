@@ -1,27 +1,22 @@
 package com.wqlabs.sgxstocks;
 
-import android.app.DialogFragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.PersistableBundle;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.TreeSet;
 
 public class TradeInfoActivity extends AppCompatActivity implements AddStockFragment.AddStockDialogListener {
 
@@ -148,7 +143,10 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
 
     private void updateTradeListView() {
         setFilter();
+        //Store position first...
+        Parcelable state = getTradeListView().onSaveInstanceState();
         getTradeListView().setAdapter(new TradeInfoListAdapter(TradeInfoActivity.this, tradeModel));
+        getTradeListView().onRestoreInstanceState(state);
     }
 
     @Override
