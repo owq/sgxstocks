@@ -1,9 +1,9 @@
 package com.wqlabs.sgxstocks;
 
+import android.app.FragmentManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -21,7 +21,11 @@ import java.util.Date;
 public class TradeInfoActivity extends AppCompatActivity implements AddStockFragment.AddStockDialogListener {
 
     AppSettings settings;
+    TradeData tradeData;
     FilteredTradeViewModel tradeModel;
+    RetainedFragment dataFragment;
+
+    AsyncTask<Object,Object,TradeData> task;
 
     Date lastUpdatedDate;
 
@@ -35,18 +39,22 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
 
         settings = new AppSettings(this);
         settings.load();
-    }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        lastUpdatedDate = (Date)savedInstanceState.getSerializable("lastUpdatedDate");
-    }
+        // find the retained fragment on activity restarts
+        FragmentManager fm = getFragmentManager();
+        dataFragment = (RetainedFragment) fm.findFragmentByTag("data");
 
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        outState.putSerializable("lastUpdatedDate", lastUpdatedDate);
-        super.onSaveInstanceState(outState, outPersistentState);
+        // create the fragment and data the first time
+        if (dataFragment == null) {
+            // add the fragment
+            dataFragment = new RetainedFragment();
+            fm.beginTransaction().add(dataFragment, "data").commit();
+        }
+        if(dataFragment.getData() != null) {
+            loadTradeData(dataFragment.getData());
+            updateTradeListView();
+        }
+        lastUpdatedDate = dataFragment.getLastUpdatedDate();
     }
 
     @Override
@@ -77,18 +85,28 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         autoRefreshIfNeeded();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(task != null) task.cancel(true);
+        dataFragment.setData(tradeData);
+        dataFragment.setLastUpdatedDate(lastUpdatedDate);
+    }
+
     private void refresh() {
+        if(task != null) task.cancel(true);
+
         final ExpandableListView v = getTradeListView();
         v.setGroupIndicator(null);
 
         getTopView().setText("Loading...");
 
-        AsyncTask<Object,Object,TradeData> task = new AsyncTask<Object, Object, TradeData>() {
+        task = new AsyncTask<Object, Object, TradeData>() {
 
             @Override
             protected TradeData doInBackground(Object... params) {
@@ -105,6 +123,7 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
             @Override
             protected void onPostExecute(TradeData tradeData) {
                 if(tradeData != null) {
+                    lastUpdatedDate = new Date();
                     loadTradeData(tradeData);
                     updateTradeListView();
                 }
@@ -122,7 +141,7 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
         if(lastUpdatedDate != null) {
             Date current = new Date();
             if(current.getTime() - lastUpdatedDate.getTime() > 1000 * 60) {
-                refresh();
+//                refresh();
             }
         }
         else {
@@ -132,7 +151,7 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
 
     private void loadTradeData(TradeData tradeData) {
 //        Snackbar.make(getTradeListView(), tradeData.getTimeStamp(), Snackbar.LENGTH_INDEFINITE).show();
-        lastUpdatedDate = new Date();
+        this.tradeData = tradeData;
         getTopView().setText(tradeData.getTimeStamp());
         this.tradeModel = new FilteredTradeViewModel(tradeData);
     }
