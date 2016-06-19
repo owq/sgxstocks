@@ -2,6 +2,7 @@ package com.wqlabs.sgxstocks;
 
 import android.app.AlertDialog;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -68,6 +69,22 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
                 SGXStockInfo info = (SGXStockInfo)parent.getItemAtPosition(position);
                 new AlertDialog.Builder(TradeInfoActivity.this)
                         .setMessage(Html.fromHtml(new StockInfoHelper(info).asVerboseHTML())).show();
+            }
+        });
+        getTradeGridView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                final SGXStockInfo info = (SGXStockInfo)parent.getItemAtPosition(position);
+                new AlertDialog.Builder(TradeInfoActivity.this)
+                        .setMessage("Remove " + info.getStockCode())
+                        .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                removeCode(info.getStockCode());
+                            }
+                        })
+                        .show();
+                return true;
             }
         });
     }

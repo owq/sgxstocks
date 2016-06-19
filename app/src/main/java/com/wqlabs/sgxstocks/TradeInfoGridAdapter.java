@@ -52,10 +52,13 @@ public class TradeInfoGridAdapter extends BaseAdapter {
         SGXStockInfo info = getItem(position);
         if (info != null) {
             TextView tv = (TextView) convertView.findViewById(R.id.tradeInfoGroupTextView);
+            String name = info.getStockName();
+
             String s = String.format(
+                    "<b>%s</b><br>" +
                     "<b>%s</b>" + "<br>" +
                             "%s",
-                    info.getStockCode(), info.getLastPrice());
+                    name.substring(0,Math.min(name.length(),4)), info.getStockCode(), info.getLastPrice());
 
             tv.setText(Html.fromHtml(s));
         }
