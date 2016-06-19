@@ -1,17 +1,21 @@
 package com.wqlabs.sgxstocks;
 
+import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ExpandableListView;
+import android.widget.GridView;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -32,10 +36,11 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_trade_info_classic);
+        setContentView(R.layout.activity_trade_info_grid);
 
-        ExpandableListView v = getTradeListView();
-        registerForContextMenu(v);
+//        ExpandableListView v = getTradeListView();
+//        registerForContextMenu(v);
+//        v.setGroupIndicator(null);
 
         settings = new AppSettings(this);
         settings.load();
@@ -55,6 +60,16 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
             updateTradeListView();
         }
         lastUpdatedDate = dataFragment.getLastUpdatedDate();
+
+        //Init grid view
+        getTradeGridView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                SGXStockInfo info = (SGXStockInfo)parent.getItemAtPosition(position);
+                new AlertDialog.Builder(TradeInfoActivity.this)
+                        .setMessage(Html.fromHtml(new StockInfoHelper(info).asVerboseHTML())).show();
+            }
+        });
     }
 
     @Override
@@ -84,6 +99,14 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
         return (ExpandableListView)findViewById(R.id.expandableListView);
     }
 
+    private GridView getTradeGridView() {
+        return (GridView)findViewById(R.id.tradeGridView);
+    }
+
+    private GridView getMainView() {
+        return getTradeGridView();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -101,8 +124,8 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
     private void refresh() {
         if(task != null) task.cancel(true);
 
-        final ExpandableListView v = getTradeListView();
-        v.setGroupIndicator(null);
+//        final ExpandableListView v = getTradeListView();
+//        v.setGroupIndicator(null);
 
         getTopView().setText("Loading...");
 
@@ -163,9 +186,10 @@ public class TradeInfoActivity extends AppCompatActivity implements AddStockFrag
     private void updateTradeListView() {
         setFilter();
         //Store position first...
-        Parcelable state = getTradeListView().onSaveInstanceState();
-        getTradeListView().setAdapter(new TradeInfoListAdapter(TradeInfoActivity.this, tradeModel));
-        getTradeListView().onRestoreInstanceState(state);
+        Parcelable state = getMainView().onSaveInstanceState();
+//        getMainView().setAdapter(new TradeInfoListAdapter(TradeInfoActivity.this, tradeModel));
+        getMainView().setAdapter(new TradeInfoGridAdapter(TradeInfoActivity.this, tradeModel));
+        getMainView().onRestoreInstanceState(state);
     }
 
     @Override

@@ -8,8 +8,6 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
-import org.json.JSONException;
-
 /**
  * Created by RadianceOng on 13-Dec-15.
  */
@@ -74,11 +72,7 @@ public class TradeInfoListAdapter extends BaseExpandableListAdapter {
         SGXStockInfo info = getGroup(groupPosition);
         if (info != null) {
             TextView tv = (TextView) convertView.findViewById(R.id.tradeInfoGroupTextView);
-            String s = String.format(
-                    "<b>%s %s</b> %s, %s-%s (%s)" + "<br>" +
-                            "(%.0f) %s / %s (%.0f)",
-                    info.getStockName(), info.getStockCode(), info.getLastPrice(), info.getLowPrice(), info.getHighPrice(), info.getOpenPrice(),
-                    info.getBuyVol(), info.getBuyPrice(), info.getSellPrice(), info.getSellVol());
+            String s = new StockInfoHelper(info).asVerboseHTML();
 
             tv.setText(Html.fromHtml(s));
         }
